@@ -88,7 +88,7 @@ public class Field extends JPanel {
 
     //endregion
 
-    private void setListeners(){
+    private void setListeners() {
         addMouseListener( new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
