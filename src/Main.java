@@ -9,6 +9,7 @@ public class Main {
         JFrame f = new JFrame();
         f.add( m );
         f.setSize( 800, 800 );
+        //f.setLayout(null);
         f.setVisible( true );
     }
 }
