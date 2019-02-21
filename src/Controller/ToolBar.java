@@ -1,8 +1,6 @@
 package Controller;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -157,7 +155,7 @@ public class ToolBar extends JToolBar {
         }
     }
 
-    class ClearButton extends JButton implements MouseListener{
+    class ClearButton extends JButton implements MouseListener {
         public ClearButton() {
             setToolTipText( "Clear field" );
             setIcon( new ImageIcon( "src/images/clear.png" ) );
@@ -190,7 +188,7 @@ public class ToolBar extends JToolBar {
         }
     }
 
-    class ImpactButton extends JButton implements MouseListener{
+    class ImpactButton extends JButton implements MouseListener {
         public ImpactButton() {
             setToolTipText( "Show/Hide impact" );
             setIcon( new ImageIcon( "src/images/impact.png" ) );
@@ -223,7 +221,7 @@ public class ToolBar extends JToolBar {
         }
     }
 
-    class NextButton extends JButton implements MouseListener{
+    class NextButton extends JButton implements MouseListener {
         public NextButton() {
             setToolTipText( "Next step" );
             setIcon( new ImageIcon( "src/images/next.png" ) );
@@ -256,7 +254,7 @@ public class ToolBar extends JToolBar {
         }
     }
 
-    class RunButton extends JButton implements MouseListener{
+    class RunButton extends JButton implements MouseListener {
         public RunButton() {
             setToolTipText( "Run/Stop" );
             setIcon( new ImageIcon( "src/images/run.png" ) );
