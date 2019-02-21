@@ -2,6 +2,8 @@ package Controller;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.LinkedList;
+import java.util.Queue;
 
 class Painter {
 
@@ -42,6 +44,48 @@ class Painter {
     //region Paint hexagon
 
     void paintHexagon(int x, int y, int newColor, BufferedImage hexField) {
+        Queue<Position> q = new LinkedList<>();
+        if (x < 0 || x >= maxX || y < 0 || y >= maxY) {
+            return;
+        }
+        int oldColor = hexField.getRGB( x, y );
+        q.add( new Position( x, y ) );
+        while (!q.isEmpty()) {
+            Position element = q.poll();
+            x = element.getX();
+            while (oldColor == hexField.getRGB( x, element.getY() ) && x >= 0) {
+                hexField.setRGB( x, element.getY(), newColor );
+                if (element.getY() < maxY - 1) {
+                    if (oldColor == hexField.getRGB( x, element.getY() + 1 )) {
+                        q.add( new Position( x, element.getY() + 1 ) );
+                    }
+                }
+                if (element.getY() > 0) {
+                    if (oldColor == hexField.getRGB( x, element.getY() - 1 )) {
+                        q.add( new Position( x, element.getY() - 1 ) );
+                    }
+                }
+                x--;
+            }
+            x = element.getX() + 1;
+            while (oldColor == hexField.getRGB( x, element.getY() ) && x < maxX) {
+                hexField.setRGB( x, element.getY(), newColor );
+                if (element.getY() < maxY - 1) {
+                    if (oldColor == hexField.getRGB( x, element.getY() + 1 )) {
+                        q.add( new Position( x, element.getY() + 1 ) );
+                    }
+                }
+                if (element.getY() > 0) {
+                    if (oldColor == hexField.getRGB( x, element.getY() - 1 )) {
+                        q.add( new Position( x, element.getY() - 1 ) );
+                    }
+                }
+                x++;
+            }
+        }
+    }
+
+    void paintHexagon1(int x, int y, int newColor, BufferedImage hexField) {
         if (x < 0 || x >= maxX || y < 0 || y >= maxY) {
             return;
         }
