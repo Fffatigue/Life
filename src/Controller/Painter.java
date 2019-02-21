@@ -41,8 +41,6 @@ class Painter {
         /*painting in another color*/
     }
 
-    //region Paint hexagon
-
     void paintHexagon(int x, int y, int newColor, BufferedImage hexField) {
         Queue<Position> q = new LinkedList<>();
         if (x < 0 || x >= maxX || y < 0 || y >= maxY) {
@@ -84,34 +82,6 @@ class Painter {
             }
         }
     }
-
-    void paintHexagon1(int x, int y, int newColor, BufferedImage hexField) {
-        if (x < 0 || x >= maxX || y < 0 || y >= maxY) {
-            return;
-        }
-        int oldColor = hexField.getRGB( x, y );
-        hexField.setRGB( x, y, newColor );
-        flood( x + 1, y, oldColor, newColor, hexField );
-        flood( x, y + 1, oldColor, newColor, hexField );
-        flood( x - 1, y, oldColor, newColor, hexField );
-        flood( x, y - 1, oldColor, newColor, hexField );
-    }
-
-
-    private void flood(int x, int y, int oldColor, int newColor, BufferedImage hexField) {
-        if (x < 0 || x >= maxX || y < 0 || y >= maxY) {
-            return;
-        }
-        if (hexField.getRGB( x, y ) == oldColor) {
-            hexField.setRGB( x, y, newColor );
-            flood( x + 1, y, oldColor, newColor, hexField );
-            flood( x, y + 1, oldColor, newColor, hexField );
-            flood( x - 1, y, oldColor, newColor, hexField );
-            flood( x, y - 1, oldColor, newColor, hexField );
-        }
-    }
-
-    //endregion
 
     //region Draw line
 
