@@ -26,7 +26,7 @@ public class ToolBar extends JToolBar {
     class OpenFileButton extends JButton implements MouseListener {
         public OpenFileButton() {
             setToolTipText( "Open file" );
-            setIcon( new ImageIcon( "src/images/open.png" ) );
+            setIcon( new ImageIcon( "src/View.resources/open.png" ) );
             addMouseListener( this );
         }
 
@@ -59,7 +59,7 @@ public class ToolBar extends JToolBar {
     class SaveFileButton extends JButton implements MouseListener {
         public SaveFileButton() {
             setToolTipText( "Save file" );
-            setIcon( new ImageIcon( "src/images/save.png" ) );
+            setIcon( new ImageIcon( "src/View.resources/save.png" ) );
             addMouseListener( this );
         }
 
@@ -92,7 +92,7 @@ public class ToolBar extends JToolBar {
     class NewFileButton extends JButton implements MouseListener {
         public NewFileButton() {
             setToolTipText( "Create new file" );
-            setIcon( new ImageIcon( "src/images/new.png" ) );
+            setIcon( new ImageIcon( "src/View.resources/new.png" ) );
             addMouseListener( this );
         }
 
@@ -125,7 +125,7 @@ public class ToolBar extends JToolBar {
     class XorButton extends JButton implements MouseListener {
         public XorButton() {
             setToolTipText( "Enable/Disable XOR mode" );
-            setIcon( new ImageIcon( "src/images/xor.png" ) );
+            setIcon( new ImageIcon( "src/View.resources/xor.png" ) );
             addMouseListener( this );
         }
 
@@ -158,7 +158,7 @@ public class ToolBar extends JToolBar {
     class ClearButton extends JButton implements MouseListener {
         public ClearButton() {
             setToolTipText( "Clear field" );
-            setIcon( new ImageIcon( "src/images/clear.png" ) );
+            setIcon( new ImageIcon( "src/View.resources/clear.png" ) );
             addMouseListener( this );
         }
 
@@ -191,7 +191,7 @@ public class ToolBar extends JToolBar {
     class ImpactButton extends JButton implements MouseListener {
         public ImpactButton() {
             setToolTipText( "Show/Hide impact" );
-            setIcon( new ImageIcon( "src/images/impact.png" ) );
+            setIcon( new ImageIcon( "src/View.resources/impact.png" ) );
             addMouseListener( this );
         }
 
@@ -224,7 +224,7 @@ public class ToolBar extends JToolBar {
     class NextButton extends JButton implements MouseListener {
         public NextButton() {
             setToolTipText( "Next step" );
-            setIcon( new ImageIcon( "src/images/next.png" ) );
+            setIcon( new ImageIcon( "src/View.resources/next.png" ) );
             addMouseListener( this );
         }
 
@@ -257,7 +257,7 @@ public class ToolBar extends JToolBar {
     class RunButton extends JButton implements MouseListener {
         public RunButton() {
             setToolTipText( "Run/Stop" );
-            setIcon( new ImageIcon( "src/images/run.png" ) );
+            setIcon( new ImageIcon( "src/View.resources/run.png" ) );
             addMouseListener( this );
         }
 

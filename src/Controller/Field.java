@@ -18,12 +18,15 @@ public class Field extends JPanel {
     private int w;
     private int maxX;
     private int maxY;
-    private boolean mousePressed = false;
-
+    private Life life;
     private Painter painter;
     private Field field = this;
     private BufferedImage hexField;
     private Map<Position, Position> posToCoord = new ConcurrentHashMap<>();
+
+    private boolean mousePressed = false;
+    private boolean xorMode = false;
+    private Position currentHexagon = null;
 
     //endregion
 
@@ -44,9 +47,11 @@ public class Field extends JPanel {
         this.n = n;
         this.k = k;
         this.w = w;
-
+        life = new Life( m, n );
         maxX = (int) ((m + 1) * k + m * Math.sqrt( 3 ) * w);
-        maxY = n * 3 * w;
+        maxY = n * w * 2 + 1000;
+
+        setPreferredSize( new Dimension( maxX, maxY ) );
 
         painter = new Painter( maxX, maxY );
         hexField = new BufferedImage( maxX, maxY, BufferedImage.TYPE_INT_ARGB );
@@ -56,8 +61,42 @@ public class Field extends JPanel {
     }
 
 
-    public void paint(Graphics g) {
-        g.drawImage( hexField, 0, 0, this );
+    public void paintComponent(Graphics g) {
+        super.paintComponent( g );
+        g.drawImage( hexField, 0, 0, null );
+    }
+
+    private void setListeners() {
+        addMouseListener( new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                mousePressed = true;
+                onHexagonPressing( e.getX(), e.getY() );
+                field.getGraphics().drawImage( hexField, 0, 0, field );
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                mousePressed = false;
+                currentHexagon = null;
+            }
+        } );
+
+        addMouseMotionListener( new MouseMotionAdapter() {
+            public void mouseMoved(MouseEvent e) {
+                if (mousePressed) {
+                    onHexagonPressing( e.getX(), e.getY() );
+                    field.getGraphics().drawImage( hexField, 0, 0, field );
+                }
+            }
+
+            public void mouseDragged(MouseEvent e) {
+                if (mousePressed) {
+                    onHexagonPressing( e.getX(), e.getY() );
+                    field.getGraphics().drawImage( hexField, 0, 0, field );
+                }
+            }
+        } );
     }
 
     //endregion
@@ -65,7 +104,7 @@ public class Field extends JPanel {
     //region Field painting
 
     private void paintPanel(Graphics g) {
-        g.setColor( Color.black );
+        g.setColor( new Color( BORDER_COLOR ) );
         double offsetX;
         double offsetY = w / (double) 2;
         double stepX = w * Math.sqrt( 3 );
@@ -88,46 +127,72 @@ public class Field extends JPanel {
 
     //endregion
 
-    private void setListeners() {
-        addMouseListener( new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                mousePressed = true;
-                changeHexagonColor( e.getX(), e.getY(), LIVE_CELL_COLOR );
-                field.getGraphics().drawImage( hexField, 0, 0, field );
-            }
 
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                mousePressed = false;
-            }
-        } );
-
-        addMouseMotionListener( new MouseMotionAdapter() {
-            public void mouseMoved(MouseEvent e) {
-                if (mousePressed) {
-                    changeHexagonColor( e.getX(), e.getY(), LIVE_CELL_COLOR );
-                    field.getGraphics().drawImage( hexField, 0, 0, field );
-                }
-            }
-
-            public void mouseDragged(MouseEvent e) {
-                if (mousePressed) {
-                    changeHexagonColor( e.getX(), e.getY(), LIVE_CELL_COLOR );
-                    field.getGraphics().drawImage( hexField, 0, 0, field );
-                }
-            }
-        } );
-    }
-
-    private void changeHexagonColor(int x, int y, int newColor) {
+    private void onHexagonPressing(int x, int y) {
         if (x < 0 || x >= maxX || y < 0 || y >= maxY) {
             return;
         }
         int oldColor = hexField.getRGB( x, y );
-        if ((oldColor == DEAD_CELL_COLOR || oldColor == LIVE_CELL_COLOR) && oldColor != newColor) {
-            painter.paintHexagon( x, y, newColor, hexField );
+        if (oldColor == BORDER_COLOR || (oldColor != DEAD_CELL_COLOR && oldColor != LIVE_CELL_COLOR)) {
+            return;
+        }
+        Position hexagon = getHexagonByCoord( x, y );
+        if (currentHexagon == null) {
+            currentHexagon = hexagon;
+        } else if (currentHexagon == hexagon) {
+            return;
+        }
+        currentHexagon = hexagon;
+        if (xorMode) {
+            if (oldColor == DEAD_CELL_COLOR) {
+                painter.paintHexagon( x, y, LIVE_CELL_COLOR, hexField );
+                life.changeCellState( hexagon.getX(), hexagon.getY(), true );
+            } else {
+                painter.paintHexagon( x, y, DEAD_CELL_COLOR, hexField );
+                life.changeCellState( hexagon.getX(), hexagon.getY(), false );
+            }
+        } else {
+            painter.paintHexagon( x, y, LIVE_CELL_COLOR, hexField );
+            life.changeCellState( hexagon.getX(), hexagon.getY(), true );
         }
     }
 
+    private Position getHexagonByCoord(int x, int y) {
+        int min = Integer.MAX_VALUE;
+        Position hexagon = null;
+        for (Map.Entry<Position, Position> pos : posToCoord.entrySet()) {
+            int distance = (pos.getValue().getX() - x) * (pos.getValue().getX() - x) + (pos.getValue().getY() - y) * (pos.getValue().getY() - y);
+            if (distance <= min) {
+                hexagon = pos.getKey();
+                min = distance;
+            }
+        }
+        return hexagon;
+    }
+
+    //region interaction
+
+    public void calculateNextState() {
+        life.calculateNextState();
+        posToCoord.forEach( (key, value) -> {
+            if (life.getCellState( key.getX(), key.getY() )) {
+                painter.paintHexagon( value.getX(), value.getY(), LIVE_CELL_COLOR, hexField );
+            } else {
+                painter.paintHexagon( value.getX(), value.getY(), DEAD_CELL_COLOR, hexField );
+            }
+        } );
+        field.getGraphics().drawImage( hexField, 0, 0, field );
+    }
+
+    public void switchXORMode() {
+        xorMode = !xorMode;
+    }
+
+    public void clear() {
+        life.clear();
+        posToCoord.forEach( (key, value) -> painter.paintHexagon( value.getX(), value.getY(), DEAD_CELL_COLOR, hexField ) );
+        field.getGraphics().drawImage( hexField,0,0,field );
+    }
+
+    //endregion
 }
