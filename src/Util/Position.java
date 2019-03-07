@@ -1,19 +1,19 @@
-package Controller;
+package Util;
 
-class Position {
+public class Position {
     private int x;
     private int y;
 
-    Position(int x, int y) {
+    public Position(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
-    int getX() {
+    public int getX() {
         return x;
     }
 
-    int getY() {
+    public int getY() {
         return y;
     }
 

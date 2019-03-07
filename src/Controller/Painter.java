@@ -1,5 +1,7 @@
 package Controller;
 
+import Util.Position;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.LinkedList;
@@ -41,44 +43,75 @@ class Painter {
         /*painting in another color*/
     }
 
+    void drawImpact(int x, int y, double impact, Graphics g, int fontSize){
+        g.setFont(new Font("Verdana", Font.BOLD, fontSize));
+        g.setColor(Color.BLACK);
+        g.drawString(String.format("%.1f", impact), x, y);
+    }
+
     void paintHexagon(int x, int y, int newColor, BufferedImage hexField) {
         Queue<Position> q = new LinkedList<>();
         if (x < 0 || x >= maxX || y < 0 || y >= maxY) {
             return;
         }
         int oldColor = hexField.getRGB( x, y );
-        if(oldColor == newColor){
+        if (oldColor == newColor) {
             return;
         }
         q.add( new Position( x, y ) );
         while (!q.isEmpty()) {
+            boolean upTrigger = false;
+            boolean downTrigger = false;
             Position element = q.poll();
             x = element.getX();
             while (oldColor == hexField.getRGB( x, element.getY() ) && x >= 0) {
                 hexField.setRGB( x, element.getY(), newColor );
                 if (element.getY() < maxY - 1) {
                     if (oldColor == hexField.getRGB( x, element.getY() + 1 )) {
-                        q.add( new Position( x, element.getY() + 1 ) );
+                        if (!upTrigger) {
+                            q.add( new Position( x, element.getY() + 1 ) );
+                            upTrigger = true;
+                        }
+                    } else {
+                        upTrigger = false;
                     }
                 }
                 if (element.getY() > 0) {
                     if (oldColor == hexField.getRGB( x, element.getY() - 1 )) {
-                        q.add( new Position( x, element.getY() - 1 ) );
+                        if (!downTrigger) {
+                            q.add( new Position( x, element.getY() - 1 ) );
+                            downTrigger = true;
+                        }
+                    } else {
+                        downTrigger = false;
                     }
                 }
                 x--;
             }
             x = element.getX() + 1;
+            upTrigger = false;
+            downTrigger = false;
+
             while (oldColor == hexField.getRGB( x, element.getY() ) && x < maxX) {
                 hexField.setRGB( x, element.getY(), newColor );
                 if (element.getY() < maxY - 1) {
                     if (oldColor == hexField.getRGB( x, element.getY() + 1 )) {
-                        q.add( new Position( x, element.getY() + 1 ) );
+                        if (!upTrigger) {
+                            q.add( new Position( x, element.getY() + 1 ) );
+                            upTrigger = true;
+                        }
+                    } else {
+                        upTrigger = false;
                     }
                 }
                 if (element.getY() > 0) {
                     if (oldColor == hexField.getRGB( x, element.getY() - 1 )) {
-                        q.add( new Position( x, element.getY() - 1 ) );
+                        if (!downTrigger) {
+                            q.add( new Position( x, element.getY() - 1 ) );
+                            downTrigger = true;
+                        }
+                    } else {
+                        downTrigger = false;
                     }
                 }
                 x++;
@@ -88,75 +121,48 @@ class Painter {
 
     //region Draw line
 
-
-
-     private void drawLine(int xstart, int ystart, int xend, int yend, Graphics g) {
-
-         int x, y, dx, dy, incx, incy, pdx, pdy, es, el, err;
-
-         dx = xend - xstart;//проекция на ось икс
-         dy = yend - ystart;//проекция на ось игрек
-
-         incx = sign(dx);
-         /*
-          * Определяем, в какую сторону нужно будет сдвигаться. Если dx < 0, т.е. отрезок идёт
-          * справа налево по иксу, то incx будет равен -1.
-          * Это будет использоваться в цикле постороения.
-          */
-         incy = sign(dy);
-         /*
-          * Аналогично. Если рисуем отрезок снизу вверх -
-          * это будет отрицательный сдвиг для y (иначе - положительный).
-          */
-
-         if (dx < 0) dx = -dx;//далее мы будем сравнивать: "if (dx < dy)"
-         if (dy < 0) dy = -dy;//поэтому необходимо сделать dx = |dx|; dy = |dy|
-         //эти две строчки можно записать и так: dx = Math.abs(dx); dy = Math.abs(dy);
-
-         if (dx > dy)
-         //определяем наклон отрезка:
-         {
-             /*
-              * Если dx > dy, то значит отрезок "вытянут" вдоль оси икс, т.е. он скорее длинный, чем высокий.
-              * Значит в цикле нужно будет идти по икс (строчка el = dx;), значит "протягивать" прямую по иксу
-              * надо в соответствии с тем, слева направо и справа налево она идёт (pdx = incx;), при этом
-              * по y сдвиг такой отсутствует.
-              */
-             pdx = incx;	pdy = 0;
-             es = dy;	el = dx;
-         }
-         else//случай, когда прямая скорее "высокая", чем длинная, т.е. вытянута по оси y
-         {
-             pdx = 0;	pdy = incy;
-             es = dx;	el = dy;//тогда в цикле будем двигаться по y
-         }
-
-         x = xstart;
-         y = ystart;
-         err = el/2;
-         g.drawLine (x, y, x, y);//ставим первую точку
-         //все последующие точки возможно надо сдвигать, поэтому первую ставим вне цикла
-
-         for (int t = 0; t < el; t++)//идём по всем точкам, начиная со второй и до последней
-         {
-             err -= es;
-             if (err < 0)
-             {
-                 err += el;
-                 x += incx;//сдвинуть прямую (сместить вверх или вниз, если цикл проходит по иксам)
-                 y += incy;//или сместить влево-вправо, если цикл проходит по y
-             }
-             else
-             {
-                 x += pdx;//продолжить тянуть прямую дальше, т.е. сдвинуть влево или вправо, если
-                 y += pdy;//цикл идёт по иксу; сдвинуть вверх или вниз, если по y
-             }
-
-             g.drawLine (x, y, x, y);
-         }
-
+    private void drawLine(int xstart, int ystart, int xend, int yend, Graphics g) {
+        ;
+        int dx = Math.abs( xend - xstart );
+        int dy = Math.abs( yend - ystart );
+        int directionx = sign( xend - xstart );
+        int directiony = sign( yend - ystart );
+        if (dy < dx) {
+            int error = 2 * dy - dx;
+            int d1 = 2 * dy;
+            int d2 = (dy - dx) * 2;
+            g.drawLine( xstart, ystart, xstart, ystart );
+            int x = xstart + directionx;
+            int y = ystart;
+            for (int i = 1; i <= dx; i++) {
+                if (error > 0) {
+                    error += d2;
+                    y += directiony;
+                } else {
+                    error += d1;
+                }
+                g.drawLine( x, y, x, y );
+                x += directionx;
+            }
+        } else {
+            int d = 2 * dx - dy;
+            int d1 = 2 * dx;
+            int d2 = (dx - dy) * 2;
+            g.drawLine( xstart, ystart, xstart, ystart );
+            int x = xstart;
+            int y = ystart + directiony;
+            for (int i = 1; i <= dy; i++) {
+                if (d > 0) {
+                    d += d2;
+                    x += directionx;
+                } else {
+                    d += d1;
+                }
+                g.drawLine( x, y, x, y );
+                y += directiony;
+            }
+        }
     }
-
 
     private int sign(int x) {
         return Integer.compare( x, 0 );
